@@ -4,8 +4,8 @@ importPackage(android.database.sqlite);
 
 /**
  * @typedef {Object} SQLiteDatabase
- * @property {function(string):Cursor} rawQuery
- * @property {function(string):SQLiteDatabase,null,number} openDatabase
+ * @property {function(string):Cursor, ?Array<string>} rawQuery
+ * @property {function(string):SQLiteDatabase, null, number} openDatabase
  * @link https://developer.android.com/reference/android/database/sqlite/SQLiteDatabase
  */
 
@@ -44,7 +44,7 @@ const Kakaobase = (function() {
      * @return Kakaobase
      */
     Kakaobase.prototype.grantPermission = function() {
-        const process = Runtime.getRuntime().exec('su -c "chmod -R 777 ' + databaseLocation + '"');
+        const process = Runtime.getRuntime().exec('su -c ""chmod -R 777 ' + databaseLocation + '""');
         process.waitFor();
         return this;
     };
@@ -64,20 +64,24 @@ const Kakaobase = (function() {
      * Select data from master database
      * @name Kakaobase#selectMaster
      * @param {string} query
+     * @param {?Array<string>} param
      * @return {Cursor}
      */
-    Kakaobase.prototype.selectMaster = function(query) {
-        return this.masterDatabase.rawQuery(query);
+    Kakaobase.prototype.selectMaster = function(query, param) {
+        param = param || null;
+        return this.masterDatabase.rawQuery(query, param);
     };
 
     /**
      * Select data from secondary database
      * @name Kakaobase#selectSecondary
      * @param {string} query
+     * @param {?Array<string>} param
      * @return {Cursor}
      */
-    Kakaobase.prototype.selectSecondary = function(query) {
-        return this.secondaryDatabase.rawQuery(query);
+    Kakaobase.prototype.selectSecondary = function(query, param) {
+        param = param || null;
+        return this.secondaryDatabase.rawQuery(query, param);
     };
 
     return Kakaobase;
