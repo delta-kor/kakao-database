@@ -103,6 +103,8 @@ const Kakaobase = (function() {
 
     /**
      * Load user id
+     * @copyright 2019 supersunkist
+     * @link https://github.com/supersunkist/rhinoKakaoTalkDBDecrypter
      * @name Kakaobase#loadID
      * @return Kakaobase
      */
@@ -116,6 +118,8 @@ const Kakaobase = (function() {
 
     /**
      * Yield crypto key with user id
+     * @copyright 2019 supersunkist
+     * @link https://github.com/supersunkist/rhinoKakaoTalkDBDecrypter
      * @name Kakaobase#yieldCryptoKey
      * @param {number} encIndex
      * @return Array
