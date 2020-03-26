@@ -41,25 +41,27 @@ const Kakaobase = (function() {
     /**
      * Grant superuser permission
      * @name Kakaobase#grantPermission
-     * @return void
+     * @return Kakaobase
      */
     Kakaobase.prototype.grantPermission = function() {
         const process = Runtime.getRuntime().exec('su -c "chmod -R 777 ' + databaseLocation + '"');
         process.waitFor();
+        return this;
     };
 
     /**
      * Load master, secondary database
      * @name Kakaobase#loadDatabase
-     * @return void
+     * @return Kakaobase
      */
     Kakaobase.prototype.loadDatabase = function() {
         this.masterDatabase = SQLiteDatabase.openDatabase(databaseLocation + '/KakaoTalk.db', null, 1);
         this.secondaryDatabase = SQLiteDatabase.openDatabase(databaseLocation + '/KakaoTalk2.db', null, 1);
+        return this;
     };
 
     return Kakaobase;
 
 })();
 
-exports.kakaobase = Kakaobase;
+module.exports = new Kakaobase;
