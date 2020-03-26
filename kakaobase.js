@@ -46,13 +46,19 @@ const Kakaobase = (function() {
      * @property {?SQLiteDatabase} masterDatabase
      * @property {?SQLiteDatabase} secondaryDatabase
      * @property {?string} id
-     * @property {object} id
+     * @property {Object} idCache
+     * @property {Object} cryptoKeyCache
+     * @property {boolean} isPermissionGranted
+     * @property {boolean} isDatabaseLoaded
      */
     function Kakaobase() {
         this.masterDatabase = null;
         this.secondaryDatabase = null;
         this.id = null;
-        this.cryptoKeyCahe = {};
+        this.idCache = {};
+        this.cryptoKeyCache = {};
+        this.isPermissionGranted = false;
+        this.isDatabaseLoaded = false;
     }
 
     /**
@@ -63,6 +69,7 @@ const Kakaobase = (function() {
     Kakaobase.prototype.grantPermission = function() {
         const process = Runtime.getRuntime().exec('su -c ""chmod -R 777 ' + databaseLocation + '""');
         process.waitFor();
+        this.isPermissionGranted = true;
         return this;
     };
 
@@ -72,8 +79,10 @@ const Kakaobase = (function() {
      * @return Kakaobase
      */
     Kakaobase.prototype.loadDatabase = function() {
+        if(!this.isPermissionGranted) throw new ReferenceError('Database cannot be loaded until permission is granted');
         this.masterDatabase = SQLiteDatabase.openDatabase(databaseLocation + '/KakaoTalk.db', null, 1);
         this.secondaryDatabase = SQLiteDatabase.openDatabase(databaseLocation + '/KakaoTalk2.db', null, 1);
+        this.isDatabaseLoaded = true;
         return this;
     };
 
@@ -85,6 +94,7 @@ const Kakaobase = (function() {
      * @return {Cursor}
      */
     Kakaobase.prototype.selectMaster = function(query, param) {
+        if(!this.isDatabaseLoaded) throw new ReferenceError('Database cannot be queried before it is loaded');
         param = param || null;
         return this.masterDatabase.rawQuery(query, param);
     };
@@ -97,6 +107,7 @@ const Kakaobase = (function() {
      * @return {Cursor}
      */
     Kakaobase.prototype.selectSecondary = function(query, param) {
+        if(!this.isDatabaseLoaded) throw new ReferenceError('Database cannot be queried before it is loaded');
         param = param || null;
         return this.secondaryDatabase.rawQuery(query, param);
     };
@@ -180,10 +191,10 @@ const Kakaobase = (function() {
         }
 
         // Generate encryption salt
-        if(this.id === null) throw new ReferenceError('Can\'t yield key without id loaded');
+        if(this.id === null) throw new ReferenceError('Key cannot be yielded before id loaded');
         let salt = (salty[encIndex] + this.id).slice(0, 16);
-        salt     = salt + '\0'.repeat(16 - salt.length);
-        salt     = new Packages.String(salt).getBytes('UTF-8').slice();
+        salt = salt + '\0'.repeat(16 - salt.length);
+        salt = new Packages.String(salt).getBytes('UTF-8').slice();
 
         // Constants
         const iterations = 2;
@@ -231,6 +242,17 @@ const Kakaobase = (function() {
         }
 
         return decryptKey;
+    };
+
+    /**
+     * Add id crypto key to idCache
+     * @name Kakaobase#initializeDecryption
+     * @return {Kakaobase}
+     */
+    Kakaobase.prototype.initializeDecryption = function() {
+        for(let i = 24; i <= 32; i++)
+            this.idCache[i] = this.yieldCryptoKey(i);
+        return this;
     };
 
     return Kakaobase;
