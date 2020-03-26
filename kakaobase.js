@@ -51,7 +51,7 @@ const Kakaobase = (function() {
     /**
      * Load master, secondary database
      * @name Kakaobase#loadDatabase
-     * @return string
+     * @return void
      */
     Kakaobase.prototype.loadDatabase = function() {
         this.masterDatabase = SQLiteDatabase.openDatabase(databaseLocation, null, 1);
