@@ -54,8 +54,8 @@ const Kakaobase = (function() {
      * @return void
      */
     Kakaobase.prototype.loadDatabase = function() {
-        this.masterDatabase = SQLiteDatabase.openDatabase(databaseLocation + '/Kakaotalk.db', null, 1);
-        this.secondaryDatabase = SQLiteDatabase.openDatabase(databaseLocation + '/Kakaotalk2.db', null, 1);
+        this.masterDatabase = SQLiteDatabase.openDatabase(databaseLocation + '/KakaoTalk.db', null, 1);
+        this.secondaryDatabase = SQLiteDatabase.openDatabase(databaseLocation + '/KakaoTalk2.db', null, 1);
     };
 
     return Kakaobase;
