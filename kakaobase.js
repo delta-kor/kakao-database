@@ -60,6 +60,26 @@ const Kakaobase = (function() {
         return this;
     };
 
+    /**
+     * Select data from master database
+     * @name Kakaobase#selectMaster
+     * @param {string} query
+     * @return {Cursor}
+     */
+    Kakaobase.prototype.selectMaster = function(query) {
+        return this.masterDatabase.rawQuery(query);
+    };
+
+    /**
+     * Select data from secondary database
+     * @name Kakaobase#selectSecondary
+     * @param {string} query
+     * @return {Cursor}
+     */
+    Kakaobase.prototype.selectSecondary = function(query) {
+        return this.secondaryDatabase.rawQuery(query);
+    };
+
     return Kakaobase;
 
 })();
