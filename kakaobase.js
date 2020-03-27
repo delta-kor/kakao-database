@@ -59,7 +59,7 @@ const Kakaobase = (function() {
      * @property {?SQLiteDatabase} secondaryDatabase
      * @property {?string} id
      * @property {Object} idCache
-     * @property {Object} cryptoKeyCache
+     * @property {Object} keyCache
      * @property {boolean} isPermissionGranted
      * @property {boolean} isDatabaseLoaded
      */
@@ -68,7 +68,7 @@ const Kakaobase = (function() {
         this.secondaryDatabase = null;
         this.id = null;
         this.idCache = {};
-        this.cryptoKeyCache = {};
+        this.keyCache = {};
         this.isPermissionGranted = false;
         this.isDatabaseLoaded = false;
     }
@@ -261,10 +261,12 @@ const Kakaobase = (function() {
      * @name Kakaobase#decrypt
      * @param {string} cipher
      * @param {number} encIndex
+     * @param {boolean} isFromKeyCache
      * @return {string}
      */
-    Kakaobase.prototype.decrypt = function(cipher, encIndex) {
-        const key = new SecretKeySpec(toJavaByteArray(this.idCache[encIndex]), 'AES');
+    Kakaobase.prototype.decrypt = function(cipher, encIndex, isFromKeyCache) {
+        isFromKeyCache = isFromKeyCache || false;
+        const key = new SecretKeySpec(toJavaByteArray(this[isFromKeyCache ? 'keyCache' : 'idCache'][encIndex]), 'AES');
         const vector = new IvParameterSpec(toJavaByteArray([15, 8, 1, 0, 25, 71, 37, 220, 21, 245, 23, 224, 225, 21, 12, 53]));
         const encrypted =  android.util.Base64.decode(cipher, 0);
         const decrypter = new Cipher.getInstance('AES/CBC/PKCS5PADDING');
