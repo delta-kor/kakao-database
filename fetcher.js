@@ -19,3 +19,5 @@ const Fetcher = (function() {
     return Fetcher;
 
 })();
+
+module.exports = new Fetcher;
