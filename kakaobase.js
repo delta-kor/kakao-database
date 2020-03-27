@@ -1,7 +1,9 @@
 // kakaobase.js
 importPackage(java.lang);
-importPackage(java.lang.reflect);
+importPackage(java.util);
 importPackage(java.security);
+importPackage(javax.crypto);
+importPackage(javax.crypto.spec);
 importPackage(android.database.sqlite);
 
 /**
@@ -33,12 +35,22 @@ const Kakaobase = (function() {
      * Encryption salt prefix
      * @type {string[]}
      */
-    const salty = ['', '', '12', '24', '18', '30', '36', '12', '48', '7', '35', '40', '17', '23', '29', 'isabel', 'kale', 'sulli', 'van', 'merry', 'kyle', 'james', 'maddux', 'tony', 'hayden', 'paul', 'elijah', 'dorothy', 'sally','bran'];
+    const salty = ['', '', '12', '24', '18', '30', '36', '12', '48', '7', '35', '40', '17', '23', '29', 'isabel', 'kale', 'sulli', 'van', 'merry', 'kyle', 'james', 'maddux', 'tony', 'hayden', 'paul', 'elijah', 'dorothy', 'sally', 'bran'];
     /**
      * Encryption password
      * @type {number[]}
      */
     const password = [0, 22, 0, 8, 0, 9, 0, 111, 0, 2, 0, 23, 0, 43, 0, 8, 0, 33, 0, 33, 0, 10, 0, 16, 0, 3, 0, 3, 0, 7, 0, 6, 0, 0];
+    /**
+     * Array to java byte array
+     * @param {Array} array
+     */
+    function toJavaByteArray(array) {
+        const byteArray = java.lang.reflect.Array.newInstance(Byte.TYPE, array.length);
+        for(let index in array)
+            byteArray[index] = new Integer(array[index]).byteValue();
+        return byteArray;
+    }
 
     /**
      * Initializes a new instance of Kakaobase
@@ -169,17 +181,6 @@ const Kakaobase = (function() {
         }
 
         /**
-         * Array to java byte array
-         * @param {Array} array
-         */
-        function toJavaByteArr(array) {
-            const byteArray = Packages.Array.newInstance(Byte.TYPE, array.length);
-            for(let index of array)
-                byteArray[index] = new Integer(array[index]).byteValue();
-            return byteArray;
-        }
-
-        /**
          * Construct array with size and fill
          * @param {number} size
          * @param fill
@@ -194,7 +195,7 @@ const Kakaobase = (function() {
         if(this.id === null) throw new ReferenceError('Key cannot be yielded before id loaded');
         let salt = (salty[encIndex] + this.id).slice(0, 16);
         salt = salt + '\0'.repeat(16 - salt.length);
-        salt = new Packages.String(salt).getBytes('UTF-8').slice();
+        salt = new java.lang.String(salt).getBytes('UTF-8').slice();
 
         // Constants
         const iterations = 2;
@@ -219,8 +220,8 @@ const Kakaobase = (function() {
         // Key yielding
         for (let index = 1; index <= size; index++) {
             let hasher = MessageDigest.getInstance("SHA-1");
-            hasher.update(toJavaByteArr(hashByte));
-            hasher.update(toJavaByteArr(passwordHashByte));
+            hasher.update(toJavaByteArray(hashByte));
+            hasher.update(toJavaByteArray(passwordHashByte));
             let hash = hasher.digest();
 
             for (let iterate = 1; iterate < iterations; iterate++) {
@@ -252,6 +253,35 @@ const Kakaobase = (function() {
     Kakaobase.prototype.initializeDecryption = function() {
         for(let i = 24; i <= 32; i++)
             this.idCache[i] = this.yieldCryptoKey(i);
+        return this;
+    };
+
+    /**
+     * Decrypt encrypted message with encrypt type
+     * @name Kakaobase#decrypt
+     * @param {string} cipher
+     * @param {number} encIndex
+     * @return {string}
+     */
+    Kakaobase.prototype.decrypt = function(cipher, encIndex) {
+        const key = new SecretKeySpec(toJavaByteArray(this.idCache[encIndex]), 'AES');
+        const vector = new IvParameterSpec(toJavaByteArray([15, 8, 1, 0, 25, 71, 37, 220, 21, 245, 23, 224, 225, 21, 12, 53]));
+        const encrypted =  android.util.Base64.decode(cipher, 0);
+        const decrypter = new Cipher.getInstance('AES/CBC/PKCS5PADDING');
+        decrypter.init(2, key, vector);
+        return new java.lang.String(decrypter.doFinal(encrypted), 'UTF-8').slice();
+    };
+
+    /**
+     * Load kakaobase
+     * @name Kakaobase#load
+     * @return {Kakaobase}
+     */
+    Kakaobase.prototype.load = function() {
+        this.grantPermission();
+        this.loadDatabase();
+        this.loadID();
+        this.initializeDecryption();
         return this;
     };
 
