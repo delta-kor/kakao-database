@@ -16,6 +16,18 @@ importPackage(android.database.sqlite);
 /**
  * @typedef {Object} Cursor
  * @property {function():number} getColumnCount
+ * @property {function(columnIndex: number):string} getColumnName
+ * @property {function():string[]} getColumnNames
+ * @property {function():number} getCount
+ * @property {function(columnIndex: number):string} getString
+ * @property {function():boolean} isFirst
+ * @property {function():boolean} isLast
+ * @property {function(columnIndex: number):boolean} isNull
+ * @property {function(offset: number):boolean} move
+ * @property {function():boolean} moveToFirst
+ * @property {function():boolean} moveToLast
+ * @property {function():boolean} moveToNext
+ * @property {function(position: number):boolean} moveToPosition
  * @link https://developer.android.com/reference/android/database/Cursor
  */
 
