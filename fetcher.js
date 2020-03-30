@@ -22,7 +22,7 @@ const Fetcher = (function() {
      * Get user by id
      * @name Fetcher#getUserByID
      * @param id
-     * @return object
+     * @return {object}
      */
     Fetcher.prototype.getUserByID = function(id) {
         const cursor = $.selectSecondary('SELECT * FROM friends WHERE id = ' + id);
@@ -31,7 +31,7 @@ const Fetcher = (function() {
         const data = {};
         for(let i = 0; i < cursor.getColumnCount(); i++)
             data[cursor.getColumnName(i)] = cursor.getString(i);
-        return data;
+        return new components.User(data);
     };
 
     return Fetcher;

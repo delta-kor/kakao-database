@@ -18,3 +18,5 @@ const Room = (function() {
     return Room;
 
 })();
+
+module.exports = Room;
