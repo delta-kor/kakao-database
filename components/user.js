@@ -50,7 +50,15 @@ const User = (function() {
         const decrypt = cipher => $.decrypt(cipher, parseInt(constructor.enc));
         this.index = parseInt(constructor._id);
         this.id = constructor.id;
-        this.type = constructor.type; // TODO
+        this.type = (function(q) {
+            switch (q) {
+                case '2': return User.Type.FRIEND;
+                case '-999999': return User.Type.UNRELATED;
+                case '1000': return User.Type.OPEN;
+                case '-1889': return User.Type.OPEN;
+                default: return User.Type.UNKNOWN;
+            }
+        })(constructor.type);
         this.name = decrypt(constructor.nick_name) || decrypt(constructor.name);
         this.image = {
             fit: decrypt(constructor.profile_image_url),
@@ -63,6 +71,13 @@ const User = (function() {
         this.boardV = json.parse(decrypt(constructor.board_v));
         this.createdTime = new Date(constructor.created_at);
     }
+
+    User.Type = {
+        'FRIEND': Symbol('user_friend'),
+        'UNRELATED': Symbol('user_unrelated'),
+        'OPEN': Symbol('user_open'),
+        'UNKNOWN': Symbol('user_unknown')
+    };
 
     return User;
 
