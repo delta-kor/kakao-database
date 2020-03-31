@@ -58,6 +58,20 @@ const Fetcher = (function() {
         return new components.Room(data);
     };
 
+    /**
+     * Get chat by id
+     * @name Fetcher#getChatByID
+     * @param id
+     * @return {Chat}
+     */
+    Fetcher.prototype.getChatByID = function(id) {
+        const cursor = $.selectMaster('SELECT * FROM chat_logs WHERE id = ' + id);
+        if(cursor.getCount() < 1) if(this.safety) return null; else throw new ReferenceError('Chat with id \'' + id + '\' not found');
+        cursor.moveToFirst();
+        const data = databaseToObject(cursor);
+        return new components.Chat(data);
+    };
+
     return Fetcher;
 
 })();

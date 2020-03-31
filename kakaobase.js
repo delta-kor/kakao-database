@@ -159,9 +159,10 @@ const Kakaobase = (function() {
      * @link https://github.com/supersunkist/rhinoKakaoTalkDBDecrypter
      * @name Kakaobase#yieldCryptoKey
      * @param {number} encIndex
+     * @param {string=} id
      * @return Array
      */
-    Kakaobase.prototype.yieldCryptoKey = function(encIndex) {
+    Kakaobase.prototype.yieldCryptoKey = function(encIndex, id) {
 
         /**
          * Adjust value
@@ -207,7 +208,7 @@ const Kakaobase = (function() {
 
         // Generate encryption salt
         if(this.id === null) throw new ReferenceError('Key cannot be yielded before id loaded');
-        let salt = (salty[encIndex] + this.id).slice(0, 16);
+        let salt = (salty[encIndex] + ( id || this.id ) ).slice(0, 16);
         salt = salt + '\0'.repeat(16 - salt.length);
         salt = new java.lang.String(salt).getBytes('UTF-8').slice();
 
@@ -262,11 +263,17 @@ const Kakaobase = (function() {
     /**
      * Add id crypto key to idCache
      * @name Kakaobase#initializeDecryption
+     * @param {number=} encIndex
+     * @param {string=} id
      * @return {Kakaobase}
      */
-    Kakaobase.prototype.initializeDecryption = function() {
-        for(let i = 24; i <= 32; i++)
-            this.idCache[i] = this.yieldCryptoKey(i);
+    Kakaobase.prototype.initializeDecryption = function(encIndex, id) {
+        if(!encIndex) {
+            for (let i = 24; i <= 32; i++)
+                this.idCache[i] = this.yieldCryptoKey(i);
+        } else {
+            this.keyCache[id.toString() + encIndex.toString()] = this.yieldCryptoKey(encIndex, id);
+        }
         return this;
     };
 
@@ -274,7 +281,7 @@ const Kakaobase = (function() {
      * Decrypt encrypted message with encrypt type
      * @name Kakaobase#decrypt
      * @param {string} cipher
-     * @param {number} encIndex
+     * @param {number|string} encIndex
      * @param {boolean} [isFromKeyCache]
      * @return {string | null}
      */
