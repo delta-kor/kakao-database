@@ -16,10 +16,9 @@ const json = require('./json');
  * @property {string} v - encrypted or {}
  * @property {string} board_v - encrypted or {}
  * @property {?string} nick_name - encrypted-nullable or blank
- * @property {string} involved_chat_ids - array-like -> big-number
+ * @property {string} involved_chat_ids - array-like -> big-number-like
  * @property {string} enc - number-like
  * @property {string} created_at - date-format-like
- * @property {Kakaobase} kakaobase
  */
 
 /**
@@ -34,7 +33,7 @@ const User = (function() {
      * @param {constructor} constructor
      * @property {number} index
      * @property {string} id
-     * @property {string} type
+     * @property {Symbol} type
      * @property {string} name
      * @property {?string} image.fit
      * @property {?string} image.half
@@ -51,7 +50,7 @@ const User = (function() {
         this.index = parseInt(constructor._id);
         this.id = constructor.id;
         this.type = (function(q) {
-            switch (q) {
+            switch(q) {
                 case '2': return User.Type.FRIEND;
                 case '-999999': return User.Type.UNRELATED;
                 case '1000': return User.Type.OPEN;
