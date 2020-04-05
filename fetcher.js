@@ -72,6 +72,32 @@ const Fetcher = (function() {
         return new components.Chat(data);
     };
 
+    /**
+     * Get chat by id
+     * @name Fetcher#getChatByIndex
+     * @param index
+     * @return {Chat}
+     */
+    Fetcher.prototype.getChatByIndex = function(index) {
+        const cursor = $.selectMaster('SELECT * FROM chat_logs WHERE _id = ' + index);
+        if(cursor.getCount() < 1) if(this.safety) return null; else throw new ReferenceError('Chat with index \'' + index + '\' not found');
+        cursor.moveToFirst();
+        const data = databaseToObject(cursor);
+        return new components.Chat(data);
+    };
+
+    /**
+     * Get chat length
+     * @name Fetcher#getChatLength
+     * @return {number}
+     */
+    Fetcher.prototype.getChatLength = function() {
+        const cursor = $.selectMaster('SELECT count(*) FROM chat_logs');
+        if(cursor.getCount() < 1) throw new Error('Unexpected error from method getChatLength');
+        cursor.moveToFirst();
+        return parseInt(cursor.getString(0));
+    };
+
     return Fetcher;
 
 })();
